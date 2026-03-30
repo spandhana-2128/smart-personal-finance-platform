@@ -17,6 +17,8 @@ import java.nio.file.*;
 import java.time.Year;
 import java.util.List;
 
+
+
 public class BudgetView {
 
     private final BudgetService budgetService;
@@ -253,8 +255,14 @@ public class BudgetView {
 
     private void loadBudgets() {
         List<Budget> budgets = budgetService.getBudgetsByUser(USER_ID);
-        Platform.runLater(() ->
-                budgetTable.setItems(FXCollections.observableArrayList(budgets)));
+        budgetTable.setItems(FXCollections.observableArrayList(budgets));
+    }
+
+    public void refresh() {
+        Platform.runLater(() -> {
+            loadBudgets();
+            loadAlerts();
+        });
     }
 
     private void loadAlerts() {

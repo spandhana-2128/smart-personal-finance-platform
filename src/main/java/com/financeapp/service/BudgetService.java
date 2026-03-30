@@ -55,4 +55,24 @@ public class BudgetService {
         if (s == null) throw new IllegalArgumentException("Unknown strategy");
         return s.getSuggestedLimit(income);
     }
+
+    public void addSpendingByUserCurrentMonth(Long userId, double amount) {
+    String currentMonth = java.time.LocalDate.now()
+            .getMonth().name();
+    int currentYear = java.time.LocalDate.now().getYear();
+    
+    budgetRepository.findByUserUserId(userId).stream()
+            .filter(b -> b.getMonth().equals(currentMonth) 
+                      && b.getYear() == currentYear)
+            .findFirst()
+            .ifPresent(budget -> {
+                budget.setCurrentSpending(budget.getCurrentSpending() + amount);
+                budgetRepository.save(budget);
+                alertService.onBudgetUpdated(
+                        userId,
+                        budget.getCurrentSpending(),
+                        budget.getMonthlyLimit(),
+                        budget.getStrategyType());
+            });
+}
 }
