@@ -1,8 +1,9 @@
 package com.financeapp;
 
 import com.financeapp.ui.BudgetView;
-import com.financeapp.ui.TransactionView;
 import com.financeapp.ui.GoalView;
+import com.financeapp.ui.InsightView;
+import com.financeapp.ui.TransactionView;
 
 import javafx.application.Application;
 import javafx.scene.Scene;
@@ -18,20 +19,21 @@ public class JavaFXApp extends Application {
         TabPane tabPane = new TabPane();
         tabPane.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
 
-        // Existing Views
-        BudgetView budgetView = new BudgetView(BudgetModuleApplication.context);
+        // Existing views
+        BudgetView      budgetView      = new BudgetView(BudgetModuleApplication.context);
         TransactionView transactionView = new TransactionView(BudgetModuleApplication.context);
+        GoalView        goalView        = new GoalView();
 
-        // 🔥 Your Goal View
-        GoalView goalView = new GoalView();
+        // Your view — Spending Insights
+        InsightView insightView = new InsightView(BudgetModuleApplication.context);
 
         // Tabs
-        Tab transactionTab = new Tab("Income & Expenses", transactionView.getRoot());
-        Tab budgetTab = new Tab("Budget Planner", budgetView.getRoot());
-        Tab goalTab = new Tab("Goals & Notifications", goalView.getView());
+        Tab transactionTab = new Tab("Income & Expenses",     transactionView.getRoot());
+        Tab budgetTab      = new Tab("Budget Planner",        budgetView.getRoot());
+        Tab goalTab        = new Tab("Goals & Notifications", goalView.getView());
+        Tab insightTab     = new Tab("Spending Insights",     insightView.getRoot());
 
-        // Add all tabs
-        tabPane.getTabs().addAll(transactionTab, budgetTab, goalTab);
+        tabPane.getTabs().addAll(transactionTab, budgetTab, goalTab, insightTab);
 
         // Refresh budget tab when selected
         budgetTab.setOnSelectionChanged(e -> {
@@ -41,7 +43,7 @@ public class JavaFXApp extends Application {
         });
 
         // Scene
-        Scene scene = new Scene(tabPane, 1100, 700);
+        Scene scene = new Scene(tabPane, 1200, 750);
 
         primaryStage.setTitle("Smart Personal Finance Platform");
         primaryStage.setScene(scene);
