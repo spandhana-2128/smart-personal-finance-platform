@@ -3,6 +3,7 @@ package com.financeapp.ui;
 import com.financeapp.model.*;
 import com.financeapp.service.CategoryService;
 import com.financeapp.service.TransactionService;
+import com.financeapp.service.CurrencyService;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.geometry.*;
@@ -10,17 +11,20 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.*;
 import org.springframework.context.ApplicationContext;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
+
 public class TransactionView {
 
     private final TransactionService transactionService;
     private final CategoryService categoryService;
+    private final CurrencyService currencyService;
 
-    private static final Long USER_ID = 1L;
+    private final Long USER_ID;
 
     private VBox root;
     private TableView<Transaction> transactionTable;
@@ -39,13 +43,17 @@ public class TransactionView {
     // Summary
     private VBox summaryBox;
 
-    public TransactionView(ApplicationContext context) {
+    public TransactionView(ApplicationContext context, Long userId) {
+        this.context = context;
+        this.USER_ID = userId;
         this.transactionService = context.getBean(TransactionService.class);
         this.categoryService = context.getBean(CategoryService.class);
+        this.currencyService = context.getBean(CurrencyService.class);
         buildUI();
         loadTransactions();
         loadSummary();
     }
+    @Autowired private ApplicationContext context;
 
     private void buildUI() {
         root = new VBox(0);
@@ -169,6 +177,36 @@ public class TransactionView {
 
         rightPanel.getChildren().addAll(tableCard, summaryBox);
         content.getChildren().addAll(formCard, rightPanel);
+        // Currency Converter card
+        VBox currencyCard = createCard("Currency Converter");
+        TextField convertAmount = new TextField();
+        convertAmount.setPromptText("Amount");
+        ComboBox<String> fromCurrency = new ComboBox<>(
+            FXCollections.observableArrayList(
+                currencyService.getSupportedCurrencies()));
+        fromCurrency.setValue("INR");
+        ComboBox<String> toCurrency = new ComboBox<>(
+            FXCollections.observableArrayList(
+                currencyService.getSupportedCurrencies()));
+        toCurrency.setValue("USD");
+        Label convertResult = new Label("Result will appear here");
+        convertResult.setStyle("-fx-text-fill: #198754; -fx-font-weight: bold;");
+        Button convertBtn = styledButton("Convert", "#6f42c1");
+        convertBtn.setOnAction(e -> {
+            try {
+                double amt = Double.parseDouble(convertAmount.getText());
+                double result = context.getBean(CurrencyService.class)
+                    .convert(amt, fromCurrency.getValue(), toCurrency.getValue());
+                convertResult.setText(String.format("%.2f %s = %.2f %s",
+                    amt, fromCurrency.getValue(), result, toCurrency.getValue()));
+            } catch (NumberFormatException ex) {
+                convertResult.setText("Enter a valid amount");
+            }
+        });
+        HBox currencyRow = new HBox(8, convertAmount, fromCurrency,
+            new Label("→"), toCurrency, convertBtn);
+        currencyRow.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+        currencyCard.getChildren().addAll(currencyRow, convertResult);
         root.getChildren().addAll(header, content);
         VBox.setVgrow(content, Priority.ALWAYS);
     }

@@ -25,7 +25,7 @@ public class BudgetView {
     private final AlertService alertService;
     private final ReportService reportService;
 
-    private static final Long USER_ID = 1L;
+    private Long USER_ID;
 
     private VBox root;
     private TableView<Budget> budgetTable;
@@ -35,7 +35,8 @@ public class BudgetView {
     private Label suggestedLabel;
     private VBox alertBox;
 
-    public BudgetView(ApplicationContext context) {
+    public BudgetView(ApplicationContext context, Long userId) {
+        this.USER_ID = userId;
         this.budgetService = context.getBean(BudgetService.class);
         this.alertService = context.getBean(AlertService.class);
         this.reportService = context.getBean(ReportService.class);

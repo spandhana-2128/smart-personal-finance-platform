@@ -55,4 +55,8 @@ public class GoalService implements Subject {
             o.update(message);
         }
     }
+
+    public void deleteGoal(Long id) {
+        repo.deleteById(id);
+    }
 }
