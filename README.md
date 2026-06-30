@@ -56,7 +56,3 @@ Layered structure: `controller` → `service` → `repository` → `model`, with
 
 
 
-
-## License
-
-Specify your license here (e.g. MIT).
